@@ -9,18 +9,23 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.FlywheelLogic;
+
 @Autonomous(name = "Example Auto", group = "Examples")
 public class ExampleAuto extends OpMode {
 
     private Follower follower;
+    private FlywheelLogic shooter = new FlywheelLogic();
+
+    private boolean shotsTriggered = false;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     private int pathState;
     private final Pose startPose = new Pose(63, 8, Math.toRadians(180)); // Start Pose of our robot.
-    private final Pose scorePose = new Pose(0, 12, Math.toRadians(43.5)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose pickup1Pose = new Pose(0, 8.1, Math.toRadians(43.5));// Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose pickup2Pose = new Pose(0, 8.2, Math.toRadians(43.5)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose pickup3Pose = new Pose(0, 8.3, Math.toRadians(43.5)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+    private final Pose scorePose = new Pose(0, 12, Math.toRadians(139.5)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose pickup1Pose = new Pose(-11.5, 43, Math.toRadians(90));// Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose pickup2Pose = new Pose(12, 43.1, Math.toRadians(90)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose pickup3Pose = new Pose(35.5, 43.2, Math.toRadians(90)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private Path scorePreload;
     private PathChain grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;
 
@@ -72,9 +77,15 @@ public class ExampleAuto extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
+                if(!shotsTriggered){
+                    shooter.fireShots(1);
+                    shotsTriggered = true;
+
+                }else if(shotsTriggered && !shooter.isBusy()){
                 follower.followPath(scorePreload);
                 setPathState(1);
                 Drawing.drawDebug(follower);
+        }
                 break;
             case 1:
 
@@ -99,10 +110,12 @@ public class ExampleAuto extends OpMode {
                 if (!follower.isBusy()) {
                     /* Grab Sample */
 
+                        follower.followPath(scorePickup1, true);
+                        Drawing.drawDebug(follower);
+                        setPathState(3);
+
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(scorePickup1, true);
-                    Drawing.drawDebug(follower);
-                    setPathState(3);
+
                 }
                 break;
             case 3:
@@ -166,6 +179,7 @@ public class ExampleAuto extends OpMode {
     public void setPathState(int pState) {
         pathState = pState;
         pathTimer.resetTimer();
+        shotsTriggered = false;
     }
 
     /**
@@ -177,6 +191,7 @@ public class ExampleAuto extends OpMode {
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
 //        Drawing.drawDebug(follower);
+        shooter.update();
         autonomousPathUpdate();
 
         // Feedback to Driver Hub for debugging
@@ -199,6 +214,7 @@ public class ExampleAuto extends OpMode {
 
 
         follower = Constants.createFollower(hardwareMap);
+        shooter.init(hardwareMap);
         buildPaths();
         follower.setStartingPose(startPose);
 
