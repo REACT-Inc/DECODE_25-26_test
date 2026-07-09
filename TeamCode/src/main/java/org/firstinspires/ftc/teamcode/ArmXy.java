@@ -1,81 +1,60 @@
-package org.firstinspires.ftc.teamcode;
-
-import com.qualcomm.robotcore.eventloop.opmode.*;
-import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
-import com.qualcomm.robotcore.util.*;
-
-@TeleOp(name = "ArmXy")   //  use Arm config file
-
-public class ArmXy extends LinearOpMode{
-
-    private Servo SH;
-    private Servo EL;
-    private Servo WR;
-    private Servo GR;
-    private int posSh =50;
-    private int posEl =500;
-    private int posWr =50;
-    private int posGr =50;
-  
-    private void setup(){
-        SH = hardwareMap.get(Servo.class, "SH");
-        EL = hardwareMap.get(Servo.class, "EL");
-        WR = hardwareMap.get(Servo.class, "WR");
-        GR = hardwareMap.get(Servo.class, "GR");
-    }
-
-    @Override
-    public void runOpMode()  throws NumberFormatException {
-        setup();
-       
-        waitForStart();
-
-        while(opModeIsActive()){
-            float lY = gamepad1.left_stick_y;
-            float lX = gamepad1.left_stick_x;
-            float rY = gamepad1.right_stick_y;
-            float rX = gamepad1.right_stick_x;
-            
-            String s = String.format (" (%6.2f, %6.2f) (%6.2f, %6.2f)", lX, lY, rX, rY);
-
-            if (true) {
-                telemetry.addData("joysticks",s);
-                String t = String.format (" %6d %6d %6d %6d",posSh,posEl,posWr,posGr);
-                telemetry.addData("pos ",t);
-            }
-           
-            
-            double Min = 2;
-            double L0  = 4.0;    // inches
-            double x   = -2*L0*lY;
-            if(x<Min)
-                x = Min;
-            double ang = Math.acos((x/2)/L0)*180/Math.PI;
-            
-            double posSh = ang/180;
-            double posEl = 0.5+(ang/180/5)*2;
-            
-            SH.setPosition(posSh);
-            EL.setPosition(posEl);
-            String u = String.format (" %6.2f %6.2f %6.2f, %6.2f",posSh,posEl,x,ang);
-            telemetry.addData("ang ",u);
-            telemetry.update();
-        }
-        
-
-    }
-    private int setServo (Servo servo, int pos,double d, int sc){
-        if (0.1 < d) {
-            if (sc > pos)
-                pos ++;
-        }
-        else if (-0.1 > d){
-            if (0 < pos)
-            pos --; 
-        }
-        servo.setPosition (pos*1.0/sc);
-         return pos; 
-    }
-}
+//package org.firstinspires.ftc.teamcode;
+//
+//import com.pedropathing.geometry.Pose;
+//import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+//import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+//import com.qualcomm.robotcore.hardware.DcMotorSimple;
+//
+//@TeleOp(name = "AutoFactoryTest")
+//public class ArmXy extends LinearOpMode {
+//
+//    // Example custom Enum for testing
+//    public enum RobotAction { IDLE, PICKUP, SCORE }
+//
+//    @Override
+//    public void runOpMode() {
+//
+//        // --- 1. REGISTER KNOWN TYPES ---
+//        // Tell the factory what "Pose" and "Direction" actually mean in Java
+//        RobotVariable.registerClass("Pose", Pose.class);
+//        RobotVariable.registerClass("Direction", DcMotorSimple.Direction.class);
+//        RobotVariable.registerClass("Action", RobotAction.class);
+//
+//        // --- 2. PREPARE FILE ---
+//        InternalFile file = new InternalFile("RobotData.txt");
+//        FileContent content = new FileContent(file);
+//
+//        // (Optional) Create a dummy file for this test
+//        content.writeToFile(
+//                "%Pose%| startPose: 10.5, 20.0, 90.0;\n" +
+//                        "%Direction%| driveDir: REVERSE;\n" +
+//                        "%Action%| armAction: PICKUP;\n"
+//        );
+////        RobotVariable.mapToFile(content, new Pose(1,2,3));
+//
+//        // --- 3. AUTO-LOAD ---
+//        telemetry.addData("Status", "Auto-Building Objects...");
+//        telemetry.update();
+//
+//        RobotVariable factory = new RobotVariable();
+//        content.loadToFactory(factory);
+//
+//        // --- 4. RETRIEVE OBJECTS ---
+//        // The factory has already done "new Pose(10.5, 20, 90)" for us!
+//        Pose myPose = factory.get("startPose");
+//
+//        // It has also done "Direction.REVERSE" for us!
+//        DcMotorSimple.Direction myDir = factory.get("driveDir");
+//
+//        RobotAction myAction = factory.get("armAction");
+//
+//        waitForStart();
+//
+//        while (opModeIsActive()) {
+//            telemetry.addData("Loaded Pose", myPose.toString());
+//            telemetry.addData("Loaded Direction", myDir);
+//            telemetry.addData("Loaded Action", myAction);
+//            telemetry.update();
+//        }
+//    }
+//}

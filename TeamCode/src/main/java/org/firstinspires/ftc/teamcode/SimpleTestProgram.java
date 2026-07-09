@@ -1,28 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.System.PropertiesSystem.PropertyCleaner;
-
-import android.os.Environment;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
-import org.firstinspires.ftc.teamcode.System.LoggingSystem;
-import org.firstinspires.ftc.teamcode.System.PropertiesSystem;
-import org.firstinspires.ftc.teamcode.System.TelemetrySystem;
+import org.firstinspires.ftc.teamcode.System.PanelsSystem;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 
 @TeleOp(name="TestAllProgram", group="Tests")
@@ -30,10 +15,10 @@ public class SimpleTestProgram extends LinearOpMode{
 
 
 
-    public TelemetrySystem telemetryS;
+    public PanelsSystem telemetryS;
     @Override
     public void runOpMode() throws InterruptedException{
-        telemetryS = new TelemetrySystem(telemetry);
+        telemetryS = new PanelsSystem(telemetry);
 //
         List<DcMotor> dcMotors = hardwareMap.getAll(DcMotor.class);
         List<Servo> servos = hardwareMap.getAll(Servo.class);
@@ -55,13 +40,13 @@ public class SimpleTestProgram extends LinearOpMode{
                 telemetryS.addLine("Manufacturer: " + dcMotor.getManufacturer() + ", Controller:" + dcMotor.getController() );
                 telemetryS.update();
                 sleep(50);
-                dcMotor.setPower(0.1);
-                sleep(500);
-                dcMotor.setPower(0.5);
-                sleep(500);
-                dcMotor.setPower(0.7);
-                sleep(500);
-                dcMotor.setPower(1);
+                dcMotor.setPower(.4);
+//                sleep(500);
+//                dcMotor.setPower(0.5);
+//                sleep(500);
+//                dcMotor.setPower(0.7);
+                sleep(5000);
+                dcMotor.setPower(-0.4);
                 telemetryS.addLine("Motor Test For Ending in 5 Seconds");
                 telemetryS.addLine("Testing Servo: " + dcMotor.getDeviceName() + ", PORT:" + dcMotor.getPortNumber() );
                 telemetryS.addLine("Connection: " + dcMotor.getConnectionInfo() + "type:" + dcMotor.getMotorType());

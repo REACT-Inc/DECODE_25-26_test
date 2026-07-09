@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.follower.Follower;
@@ -11,10 +12,10 @@ import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
+@Configurable
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(14.6)
+            .mass(18.6)
             .forwardZeroPowerAcceleration(-32.9346931313679598)
             .lateralZeroPowerAcceleration(-74.042491844080064)
             .translationalPIDFCoefficients(new PIDFCoefficients(
@@ -31,7 +32,7 @@ public class Constants {
                     0.02
             ))
             .headingPIDFCoefficients(new PIDFCoefficients(
-                    0.8,
+                    0.65,
                     0,
                     0,
                     0.01
@@ -43,7 +44,7 @@ public class Constants {
                     0.0005
             ))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.1,
+                    0.019,
                     0,
                     0.00035,
                     0.6,
@@ -68,6 +69,7 @@ public class Constants {
             .leftRearMotorName("BL")
             .rightFrontMotorName("FR")
             .rightRearMotorName("BR")
+            .useVoltageCompensation(true)
             .useBrakeModeInTeleOp(true)
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
@@ -95,14 +97,17 @@ public class Constants {
             0.1,
             0.1,
             0.009,
-            50,
+            500,
             1.25,
             10,
             1
     );
 
+
     //Add custom localizers or drivetrains here
     public static Follower createFollower(HardwareMap hardwareMap) {
+        pathConstraints.setTValueConstraint(1.0);
+
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .mecanumDrivetrain(driveConstants)
                 .pinpointLocalizer(localizerConstants)

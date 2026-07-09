@@ -2,11 +2,8 @@ package org.firstinspires.ftc.teamcode.System;
 
 import static androidx.core.math.MathUtils.clamp;
 
-import android.os.Environment;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -57,8 +54,8 @@ public class AutoTeleOpCommunicationSystem {
             //-20f means FORWARD and -21f means reverse
             //next is button asignment stuff for this so this can change button assignement!
             //-10f == zero power break -11f = float
-            put(Communicates.AUTO_ID, "");
-            put(Communicates.AUTO_COLOR, "");
+            put(Communicates.AUTO_ID, "0");
+            put(Communicates.AUTO_COLOR, "yellow");
             put(Communicates.END_POSE_X, "0.0");
             put(Communicates.END_POSE_Y, "0.0");
             put(Communicates.END_POSE_RADIANS, "0.0");
@@ -73,7 +70,7 @@ public class AutoTeleOpCommunicationSystem {
     };
     // END Properties
 
-TelemetrySystem telemetry = null;
+PanelsSystem telemetry = null;
     public AutoTeleOpCommunicationSystem(){
 //        try {
 //            File dir = new File(DATA_SAVE);
@@ -118,7 +115,7 @@ TelemetrySystem telemetry = null;
         wr.close();
     }
 
-    public static void loadCommunication() throws IOException {
+    public static void loadCommunication(PanelsSystem telemetry) throws IOException {
         //                ArrayList<String> load_log = new ArrayList<>();
         BufferedReader rd = new BufferedReader(new FileReader(COMS_SAVE));
         while (true) {
@@ -126,6 +123,8 @@ TelemetrySystem telemetry = null;
             //                    load_log.add("Read Line: " + line);
             if (line == null) break;
             String[] split = line.split(":");
+            telemetry.addData(split[0], split[1]);
+//            return;
             String key = split[0];
             String value = split[1];
             try {
@@ -140,16 +139,16 @@ TelemetrySystem telemetry = null;
             } catch (IndexOutOfBoundsException e) {
                 continue;
             }
-            //                    load_log.add("Key: " + key);
-            //                    load_log.add("Value: " + value);
-            //                    load_log.add("Enum: " + Prop.values()[key]);
+//            //                    load_log.add("Key: " + key);
+//            //                    load_log.add("Value: " + value);
+//            //                    load_log.add("Enum: " + Prop.values()[key]);
         }
-        //                telemetry.addLine("Finished loading; here's the log. Press 🔴 to continue.");
-        //                for(String s : load_log){
-        //                    telemetry.addLine(s);
-        //                }
-        //                telemetry.update();
-        //                while(!gamepad1.circle || !gamepad2.circle);
+//        //                telemetry.addLine("Finished loading; here's the log. Press 🔴 to continue.");
+//        //                for(String s : load_log){
+//        //                    telemetry.addLine(s);
+//        //                }
+//        //                telemetry.update();
+//        //                while(!gamepad1.circle || !gamepad2.circle);
     }
 
 }

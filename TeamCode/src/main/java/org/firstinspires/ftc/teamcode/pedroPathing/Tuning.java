@@ -15,7 +15,6 @@ import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-import com.pedropathing.ErrorCalculator;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.*;
 import com.pedropathing.math.*;
@@ -26,7 +25,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.System.LoggingSystem;
+import org.firstinspires.ftc.teamcode.System.PanelsSystem;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1221,12 +1222,16 @@ class Circle extends OpMode {
  * @version 1.1, 5/19/2025
  */
 class Drawing {
+
+    public static ArrayList<Pose> allPoses = new ArrayList<>();
+    public static LoggingSystem logging;
     public static final double ROBOT_RADIUS = 9; // woah
     private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
 
     private static final Style robotLook = new Style(
             "", "#3F51B5", 0.75
     );
+    static final Style robotExpectedPath = new Style("#f542bf", "#f542bf", 1.0);
     private static final Style historyLook = new Style(
             "", "#4CAF50", 0.75
     );
@@ -1237,6 +1242,9 @@ class Drawing {
     public static void init() {
         panelsField.setOffsets(PanelsField.INSTANCE.getPresets().getPEDRO_PATHING());
     }
+public static void drawAll(Follower follower){
+
+}
 
     /**
      * This draws everything that will be used in the Follower's telemetryDebug() method. This takes
@@ -1245,6 +1253,7 @@ class Drawing {
      * @param follower Pedro Follower instance.
      */
     public static void drawDebug(Follower follower) {
+
         if (follower.getCurrentPath() != null) {
             drawPath(follower.getCurrentPath(), robotLook);
             Pose closestPoint = follower.getPointFromPath(follower.getCurrentPath().getClosestPointTValue());
@@ -1255,13 +1264,45 @@ class Drawing {
 
         sendPacket();
     }
+    public static Pose lastPoses = new Pose(0,0,0);
     /**
      * Draws a path etc for teleop  better for teleop cuz it logs and stuff we can retrieve old results from old matches
      */
-    public static void drawForTeleop(Follower follower, LoggingSystem logs){
-        //todo make log make new instace for this in the folder
-        //then work on draw fromlogs opmode
-        drawDebug(follower);
+        public static void drawForTeleop(Follower follower, Timer opmodeTimer, PanelsSystem telemetrys) throws IOException {
+            /// The robot is always moving slightly so we have to custom round these values
+//            telemetrys.addData("L",Round.round(follower.getPose().getY(), 5, Round.Mode.UP) == Round.round(lastPoses.getY(), 5, Round.Mode.UP));
+//            if(Round.round(follower.getPose().getX(), 5, Round.Mode.UP) == Round.round(lastPoses.getX(), 5, Round.Mode.UP) &&
+//                    Round.round(follower.getPose().getY(), 5, Round.Mode.UP) == Round.round(lastPoses.getY(), 5, Round.Mode.UP)
+//        ){
+//                //hasnt changed
+//            }else {
+//                lastPoses = follower.getPose();
+//                allPoses.add(follower.getPose());//.getPose();
+////                logging.savePose(follower.getPose(), opmodeTimer);
+//            }
+            if (follower.getCurrentPath() != null) {
+                drawPath(follower.getCurrentPath(), robotLook);
+                Pose closestPoint = follower.getPointFromPath(follower.getCurrentPath().getClosestPointTValue());
+                drawRobot(new Pose(closestPoint.getX(), closestPoint.getY(), follower.getCurrentPath().getHeadingGoal(follower.getCurrentPath().getClosestPointTValue())), robotLook);
+            }
+            drawPoseHistory(follower.getPoseHistory(), historyLook);
+            drawRobot(follower.getPose(), historyLook);
+//            Pose lastPose = allPoses.get(0);
+//            for(Pose pose : allPoses){
+//                drawColoredLine(robotExpectedPath, pose.getX(), pose.getY(), lastPose.getX(), lastPose.getY());
+//                lastPose = pose;
+//            }
+//            telemetrys.addData("LENGTh", allPoses.size());
+
+
+    }
+    public static void addPosesToList(ArrayList<Pose> poses){
+            for(Pose pose : poses){
+                allPoses.add(pose);
+            }
+    }
+    public static void addLogFile(LoggingSystem logging){
+            Drawing.logging = logging;
     }
     /**
      * This draws a robot at a specified Pose with a specified
@@ -1288,7 +1329,39 @@ class Drawing {
         panelsField.moveCursor(x1, y1);
         panelsField.line(x2, y2);
     }
+    public static void drawLine( double x, double y, double x2, double y2, Style style){
 
+        panelsField.moveCursor(x,y);
+        panelsField.setStyle(style);
+        panelsField.line(x2,y2);
+
+//        panelsField.update();
+
+    }public static void drawColoredLine(Style style, double x, double y, double x2, double y2){
+        panelsField.moveCursor(x,y);
+        panelsField.setStyle(style);
+        panelsField.line(x2,y2);
+
+//        panelsField.update();
+
+    }
+    public static void drawPolygone(TeleOp26.Pose6D pose){
+        //todo
+        ArrayList<Pose> points = pose.allZones.getZones().get(1).Points;
+        Pose lastPoint =points.get(0);
+        panelsField.setStyle(robotExpectedPath);
+        panelsField.setFill("#999999");
+//        panelsField.
+        for(Pose point : points){
+            panelsField.moveCursor(lastPoint.getX(), lastPoint.getY());
+            panelsField.line(point.getX(), point.getY());
+            lastPoint = point;
+        }
+//        panelsField.
+    }
+    public static void drawToNew(Pose pose){
+//        panelsField.setStyle(historyLook);
+    }
     /**
      * This draws a robot at a specified Pose. The heading is represented as a line.
      *

@@ -3,21 +3,14 @@ package org.firstinspires.ftc.teamcode.System;
 import static androidx.core.math.MathUtils.clamp;
 
 import android.os.Environment;
-import android.os.FileUtils;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
 import com.qualcomm.robotcore.hardware.*;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 import java.io.*;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.util.*;
 
-import javax.tools.FileObject;
 @Configurable
 public class PropertiesSystem {
     @IgnoreConfigurable
@@ -35,11 +28,10 @@ public class PropertiesSystem {
         /**
          * The speed the horizontal slides move at.
          ***/
-        RIGHT_WRIST_POWER,
-        /**
-         * The amount of samples used in averaging Limelight results.
-         ***/
-        LEFT_WRIST_POWER,
+        WRIST_POSITION,
+        AUTO_BALL_DISTANCE_MAX,
+        AUTO_BALL_TIMEOUT,
+        AUTO_BALL_REQUIRED_TIME,
         /**
          * The multiplier applied to the speed boost.
          **/
@@ -119,10 +111,27 @@ public class PropertiesSystem {
          * This can disable controller drive (IF WE HAVE IT ON A TABLE THIS IS EPIC!)
          */
         CONTROLLER_DRIVE_ENABLED,
+        StartPose_X,
+        StartPose_Y,
+        StartPose_RADIANS,
+        ScorePose_Y,
+        ScorePose_X,
+        ScorePose_RADIANS,
+        Pickup1Pose_X,
+        Pickup1Pose_Y,
+        Pickup1Pose_RADIANS,
+        Pickup2Pose_Y,
+        Pickup2Pose_X,
+        Pickup2Pose_RADIANS,
+        CURRENT_POSE_X,
+        CURRENT_POSE_Y,
+        CURRENT_POSE_RADIANS,
+
         /**
          * Disableds auto driveing things
          */
-        AUTO_DRIVE_DISABLED
+        AUTO_DRIVE_DISABLED,
+        LAUNCHER_DISABLED
     }
 
     @IgnoreConfigurable
@@ -133,8 +142,7 @@ public class PropertiesSystem {
             //-20f means FORWARD and -21f means reverse
             //next is button asignment stuff for this so this can change button assignement!
             //-10f == zero power break -11f = float
-            put(Prop.RIGHT_WRIST_POWER, 0.5f);
-            put(Prop.LEFT_WRIST_POWER, 0.5f);
+            put(Prop.WRIST_POSITION, 0.9f);
             put(Prop.RIGHT_RUBBER_BAND_POWER, 0.5f);
             put(Prop.LEFT_RUBBER_BAND_POWER, 0.5f);
             put(Prop.MID_INTAKE_POWER, 1f);
@@ -156,14 +164,23 @@ public class PropertiesSystem {
             put(Prop.TOP_ALLOW_CONTROLS_IN_MENU, -1f);
             put(Prop.LED_ENABLED_PRISM_DRIVER, -1f);
             put(Prop.CONTROLLER_DRIVE_ENABLED, -1f);
-            put(Prop.AUTO_DRIVE_DISABLED, -1f);
+            put(Prop.AUTO_DRIVE_DISABLED, -2f);
+            put(Prop.LAUNCHER_DISABLED, -2f);
+
+            put(Prop.CURRENT_POSE_X, 70f);
+            put(Prop.CURRENT_POSE_Y, 8f);
+            put(Prop.CURRENT_POSE_RADIANS, 180f);
+            put(Prop.AUTO_BALL_DISTANCE_MAX,11f);
+            put(Prop.AUTO_BALL_TIMEOUT, 11f);
+            put(Prop.AUTO_BALL_REQUIRED_TIME, 7.5f);
+
 
         }
     };
     // END Properties
 
     public boolean adjustmentMode = false;
-TelemetrySystem telemetry = null;
+PanelsSystem telemetry = null;
     public int adjustmentIndex = 0;
     public Prop adjust_selected = null;
     public final int UI_BTN_PRESS_DELAY = 40;
@@ -180,7 +197,7 @@ TelemetrySystem telemetry = null;
     public String adjust_input = "REPLACE";
     public float[] setInUse;// = null;
 public boolean  haveUnderscore = true;
-    public  PropertiesSystem(TelemetrySystem telemetry){
+    public  PropertiesSystem(PanelsSystem telemetry){
         this.telemetry = telemetry;
 //        try {
 //            File dir = new File(DATA_SAVE);
@@ -191,6 +208,7 @@ public boolean  haveUnderscore = true;
 //        PROPERTIES.get(Prop.HS_STARTING_POS);
     }
     public void startMenu(Gamepad gamepad1) {
+
         telemetry.addLine("Adjustment Mode");
         telemetry.addLine("_______________");
         telemetry.addLine();
